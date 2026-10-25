@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Ops Assistant on GCP - Comprehensive Analysis</title>
+<style>
+  @page {
+    size: A4;
+    margin: 16mm 14mm 16mm 14mm;
+  }
+  
+  :root {
+    --primary: #1e3a8a;
+    --primary-light: #eff6ff;
+    --secondary: #0f766e;
+    --accent: #2563eb;
+    --dark: #0f172a;
+    --gray-900: #1e293b;
+    --gray-700: #334155;
+    --gray-600: #475569;
+    --gray-400: #94a3b8;
+    --gray-200: #e2e8f0;
+    --gray-100: #f1f5f9;
+    --gray-50: #f8fafc;
+    --code-bg: #1e293b;
+    --warning-bg: #fffbeb;
+    --warning-border: #f59e0b;
+    --danger-bg: #fef2f2;
+    --danger-border: #ef4444;
+    --success-bg: #f0fdf4;
+    --success-border: #22c55e;
+  }
+
+  * { box-sizing: border-box; }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--gray-900);
+    line-height: 1.55;
+    font-size: 10pt;
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+  }
+
+  /* Header / Cover block */
+  .doc-header {
+    border-bottom: 2px solid var(--gray-200);
+    padding-bottom: 14px;
+    margin-bottom: 22px;
+  }
+  .doc-badge {
+    display: inline-block;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 7.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid #bfdbfe;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 20pt;
+    font-weight: 800;
+    color: var(--dark);
+    margin: 0 0 6px 0;
+    letter-spacing: -0.5px;
+  }
+  .doc-subtitle {
+    font-size: 11pt;
+    color: var(--gray-600);
+    margin: 0 0 12px 0;
+  }
+  .doc-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 8.5pt;
+    color: var(--gray-600);
+    background: var(--gray-50);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--gray-200);
+  }
+  .doc-meta strong {
+    color: var(--dark);
+  }
+
+  /* Headings */
+  h2 {
+    font-size: 13pt;
+    font-weight: 700;
+    color: var(--dark);
+    border-left: 4px solid var(--accent);
+    padding-left: 8px;
+    margin: 20px 0 10px 0;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 14px 0 6px 0;
+    page-break-after: avoid;
+  }
+  p {
+    margin: 0 0 8px 0;
+    text-align: justify;
+  }
+
+  /* Cards & Sections */
+  .card {
+    background: #ffffff;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    page-break-inside: avoid;
+  }
+  .card-title {
+    font-weight: 700;
+    font-size: 9.5pt;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
+
+  /* Callout boxes */
+  .callout {
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 10px 0;
+    font-size: 8.5pt;
+    page-break-inside: avoid;
+  }
+  .callout-info {
+    background: var(--primary-light);
+    border-left: 4px solid var(--accent);
+    color: #1e3a8a;
+  }
+  .callout-warning {
+    background: var(--warning-bg);
+    border-left: 4px solid var(--warning-border);
+    color: #854d0e;
+  }
+  .callout-success {
+    background: var(--success-bg);
+    border-left: 4px solid var(--success-border);
+    color: #166534;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 8.5pt;
+    page-break-inside: avoid;
+  }
+  th, td {
+    padding: 6px 9px;
+    border: 1px solid var(--gray-200);
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--gray-100);
+    font-weight: 700;
+    color: var(--dark);
+  }
+  tr:nth-child(even) td {
+    background: var(--gray-50);
+  }
+
+  /* Code blocks */
+  pre, code {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  code {
+    background: var(--gray-100);
+    color: #b91c1c;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 8.5pt;
+  }
+  pre {
+    background: var(--code-bg);
+    color: #f8fafc;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 8pt;
+    line-height: 1.45;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 8px 0;
+    page-break-inside: avoid;
+  }
+  pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+  }
+
+  /* Diagram box */
+  .diagram-container {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    padding: 14px;
+    text-align: center;
+    margin: 12px 0;
+    page-break-inside: avoid;
+  }
+
+  /* Lists */
+  ul, ol {
+    margin: 4px 0 10px 20px;
+    padding: 0;
+  }
+  li {
+    margin-bottom: 4px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 8px 0;
+    page-break-inside: avoid;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 7.5pt;
+    font-weight: 600;
+    border-radius: 4px;
+  }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-green { background: #dcfce7; color: #15803d; }
+  .badge-amber { background: #fef3c7; color: #b45309; }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  .footer {
+    font-size: 7.5pt;
+    color: var(--gray-400);
+    text-align: center;
+    margin-top: 24px;
+    border-top: 1px solid var(--gray-200);
+    padding-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- DOCUMENT HEADER -->
+  <div class="doc-header">
+    <span class="doc-badge">GCP SRE &amp; Autonomous AI Architecture Reference</span>
+    <h1>AI Ops Assistant on Google Cloud Platform</h1>
+    <p class="doc-subtitle">Automated Incident Investigation, Telemetry Correlation &amp; Root Cause Analysis using Vertex AI (Gemini)</p>
+    <div class="doc-meta">
+      <div><strong>Target Cloud:</strong> Google Cloud Platform (GCP)</div>
+      <div><strong>LLM Engine:</strong> Gemini 3.5 Flash-Lite (Vertex AI Global Endpoint)</div>
+      <div><strong>Infrastructure:</strong> Terraform v1.5+</div>
+      <div><strong>Runtimes:</strong> Python 3.12 (Cloud Run Fn), Debian 12 (GCE)</div>
+      <div><strong>Generated:</strong> October 2026</div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: EXECUTIVE SUMMARY -->
+  <h2>1. Executive Summary</h2>
+  <p>
+    Modern cloud incidents require Site Reliability Engineers (SREs) to rapidly correlate distributed telemetry (logs, error rates, p95/p99 latency spikes, machine health) with institutional knowledge (architecture topologies, post-mortems of previous outages, and standard operating runbooks). In high-stress scenarios, manual correlation takes precious time and is error-prone.
+  </p>
+  <p>
+    The <strong>AI Ops Assistant on GCP</strong> project demonstrates a complete, autonomous Site Reliability Assistant architecture. It continually gathers live system signals from Google Cloud Logging and Monitoring, pairs them with contextual knowledge files stored in Google Cloud Storage, and submits the combined corpus to Gemini on Vertex AI. The assistant provides an immediate, evidence-grounded diagnosis: pinpointing the root cause, citing exact telemetry proofs, detailing step-by-step triage actions, and recommending surgical remediation steps.
+  </p>
+
+  <div class="callout callout-info">
+    <strong>Key Innovation:</strong> Grounded In-Context Telemetry Fusion. Rather than asking an LLM generic questions, this system automatically executes targeted Cloud Logging and Cloud Monitoring queries for the incident window, parses latency percentiles and error codes, pulls matching runbooks, and instructs Gemini to reason <em>strictly</em> on empirical evidence without hallucinations.
+  </div>
+
+  <!-- SECTION 2: END-TO-END ARCHITECTURE -->
+  <h2>2. System Architecture &amp; Data Flow</h2>
+  <p>
+    The project is partitioned into four primary layers: the monitored workload, the telemetry ingestion pipeline, the serverless AI diagnosis engine, and the web interface.
+  </p>
+
+  <div class="diagram-container">
+    <svg width="680" height="240" viewBox="0 0 680 240" xmlns="http://www.w3.org/2000/svg" style="max-width: 100%; height: auto;">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+        </marker>
+      </defs>
+
+      <!-- Web UI -->
+      <rect x="10" y="20" width="130" height="70" rx="6" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="75" y="45" font-family="sans-serif" font-size="11" font-weight="bold" fill="#1e40af" text-anchor="middle">Web UI (GCS)</text>
+      <text x="75" y="62" font-family="sans-serif" font-size="9" fill="#3b82f6" text-anchor="middle">index.html + config.js</text>
+      <text x="75" y="75" font-family="sans-serif" font-size="8" fill="#64748b" text-anchor="middle">Browser Dashboard</text>
+
+      <!-- Cloud Run Function -->
+      <rect x="210" y="15" width="160" height="90" rx="6" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="290" y="42" font-family="sans-serif" font-size="11" font-weight="bold" fill="#166534" text-anchor="middle">Cloud Run Function</text>
+      <text x="290" y="58" font-family="sans-serif" font-size="9" fill="#15803d" text-anchor="middle">function/main.py (ask)</text>
+      <text x="290" y="73" font-family="sans-serif" font-size="8" fill="#475569" text-anchor="middle">Latency &amp; Error Aggregator</text>
+      <text x="290" y="86" font-family="sans-serif" font-size="8" fill="#475569" text-anchor="middle">RAG Matcher &amp; Prompt Synthesizer</text>
+
+      <!-- Telemetry Sources -->
+      <rect x="440" y="10" width="220" height="95" rx="6" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="550" y="28" font-family="sans-serif" font-size="10" font-weight="bold" fill="#0f172a" text-anchor="middle">GCP Telemetry Sources</text>
+      <rect x="450" y="38" width="95" height="30" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+      <text x="497" y="56" font-family="sans-serif" font-size="8.5" fill="#334155" text-anchor="middle">Cloud Logging</text>
+      <rect x="555" y="38" width="95" height="30" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+      <text x="602" y="56" font-family="sans-serif" font-size="8.5" fill="#334155" text-anchor="middle">Cloud Monitoring</text>
+      <text x="550" y="90" font-family="sans-serif" font-size="8" fill="#64748b" text-anchor="middle">JSON Logs, Latencies, CPU &amp; RAM</text>
+
+      <!-- Monitored VM -->
+      <rect x="440" y="140" width="220" height="85" rx="6" fill="#fff7ed" stroke="#f97316" stroke-width="1.5"/>
+      <text x="550" y="160" font-family="sans-serif" font-size="10" font-weight="bold" fill="#9a3412" text-anchor="middle">Compute Engine VM</text>
+      <text x="550" y="175" font-family="sans-serif" font-size="8.5" fill="#c2410c" text-anchor="middle">Flask Sample App (:8080) + Gunicorn</text>
+      <text x="550" y="190" font-family="sans-serif" font-size="8.5" fill="#c2410c" text-anchor="middle">Google Cloud Ops Agent</text>
+      <text x="550" y="208" font-family="sans-serif" font-size="8" fill="#7c2d12" text-anchor="middle">Fault injection (/fault/on, /fault/off)</text>
+
+      <!-- Knowledge Base -->
+      <rect x="210" y="145" width="160" height="75" rx="6" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+      <text x="290" y="168" font-family="sans-serif" font-size="10" font-weight="bold" fill="#854d0e" text-anchor="middle">GCS Knowledge Bucket</text>
+      <text x="290" y="184" font-family="sans-serif" font-size="8.5" fill="#a16207" text-anchor="middle">Architecture Specs</text>
+      <text x="290" y="198" font-family="sans-serif" font-size="8.5" fill="#a16207" text-anchor="middle">Incident Post-Mortems (INC-101)</text>
+      <text x="290" y="211" font-family="sans-serif" font-size="8" fill="#713f12" text-anchor="middle">Runbooks (DB Pool, High CPU)</text>
+
+      <!-- Vertex AI Gemini -->
+      <rect x="10" y="145" width="130" height="75" rx="6" fill="#faf5ff" stroke="#a855f7" stroke-width="1.5"/>
+      <text x="75" y="170" font-family="sans-serif" font-size="10" font-weight="bold" fill="#6b21a8" text-anchor="middle">Vertex AI</text>
+      <text x="75" y="188" font-family="sans-serif" font-size="9" fill="#9333ea" text-anchor="middle">Gemini 2.5 Flash</text>
+      <text x="75" y="204" font-family="sans-serif" font-size="8" fill="#581c87" text-anchor="middle">Reasoning &amp; RCA</text>
+
+      <!-- Connectors -->
+      <line x1="140" y1="55" x2="210" y2="55" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <line x1="370" y1="45" x2="440" y2="45" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <line x1="290" y1="105" x2="290" y2="145" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <line x1="210" y1="85" x2="140" y2="160" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <line x1="550" y1="140" x2="550" y2="105" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+    </svg>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 3: REPOSITORY ARCHITECTURE & FILE MAP -->
+  <h2>3. Repository Structure &amp; File Responsibility Map</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">File / Path</th>
+        <th style="width: 20%;">Component</th>
+        <th>Description &amp; Operational Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>function/main.py</code></td>
+        <td><span class="badge badge-green">AI Core</span></td>
+        <td>Cloud Run Function backend. Gathers telemetry from Cloud Logging &amp; Monitoring, retrieves knowledge files from GCS, and constructs Gemini prompts to diagnose issues.</td>
+      </tr>
+      <tr>
+        <td><code>function/requirements.txt</code></td>
+        <td><span class="badge badge-green">AI Core</span></td>
+        <td>Dependencies: <code>functions-framework</code>, <code>google-cloud-logging</code>, <code>google-cloud-monitoring</code>, <code>google-cloud-storage</code>, and <code>google-genai</code>.</td>
+      </tr>
+      <tr>
+        <td><code>sample-app/app.py</code></td>
+        <td><span class="badge badge-amber">Target App</span></td>
+        <td>Flask application with endpoints for <code>/api/orders</code>, <code>/api/checkout</code>, and fault injection toggles (<code>/fault/on</code>, <code>/fault/off</code>). Logs structured JSON.</td>
+      </tr>
+      <tr>
+        <td><code>terraform/main.tf</code></td>
+        <td><span class="badge badge-blue">IaC</span></td>
+        <td>Declares GCP infrastructure: Storage buckets (web, knowledge, build), Compute Engine VM, Cloud Run Function 2nd Gen, IAM roles, and firewall rules.</td>
+      </tr>
+      <tr>
+        <td><code>terraform/startup.sh.tpl</code></td>
+        <td><span class="badge badge-blue">IaC</span></td>
+        <td>VM bootstrap script: Installs Google Cloud Ops Agent, configures JSON log parsing for <code>sample_app</code>, downloads <code>app.py</code>, and starts Gunicorn as a systemd service.</td>
+      </tr>
+      <tr>
+        <td><code>terraform/variables.tf</code></td>
+        <td><span class="badge badge-blue">IaC</span></td>
+        <td>Parameters: <code>project_id</code>, <code>region</code>, <code>zone</code>, <code>gemini_model</code> (default: <code>gemini-2.5-flash</code>), <code>allowed_cidr</code>, and authentication toggles.</td>
+      </tr>
+      <tr>
+        <td><code>web/index.html</code></td>
+        <td><span class="badge badge-blue">UI</span></td>
+        <td>Single-page diagnosis portal hosted in GCS. Submits queries to the Cloud Run function, displays root causes, and shows raw telemetry evidence.</td>
+      </tr>
+      <tr>
+        <td><code>knowledge/architecture/sample-app.md</code></td>
+        <td><span class="badge badge-amber">Knowledge</span></td>
+        <td>System topology documentation: Normal latency profiles (orders p95 &lt; 200ms, checkout p95 &lt; 300ms) and database connection pool specifications.</td>
+      </tr>
+      <tr>
+        <td><code>knowledge/incidents/INC-101.md</code></td>
+        <td><span class="badge badge-amber">Knowledge</span></td>
+        <td>Historical post-mortem: Explains previous checkout timeouts caused by connection pool starvation and describes how it was resolved.</td>
+      </tr>
+      <tr>
+        <td><code>knowledge/runbooks/db-connection-pool.md</code></td>
+        <td><span class="badge badge-amber">Knowledge</span></td>
+        <td>Step-by-step diagnostic tree and mitigation procedures when DB connection pool exhaustion errors appear.</td>
+      </tr>
+      <tr>
+        <td><code>knowledge/runbooks/high-cpu.md</code></td>
+        <td><span class="badge badge-amber">Knowledge</span></td>
+        <td>SRE runbook for CPU spikes &gt; 85%, runaway worker threads, and VM scale-up procedures.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 4: CODE DEEP-DIVE -->
+  <h2>4. Core Component Code Analysis</h2>
+
+  <h3>4.1 Monitored Service &amp; Fault Injection (<code>sample-app/app.py</code>)</h3>
+  <p>
+    The sample app acts as a realistic target for SRE observability. It measures request durations via Flask hooks and writes JSON logs to stdout:
+  </p>
+  <pre><code>@app.after_request
+def _log_request(resp):
+    ms = round((time.time() - request._t0) * 1000)
+    sev = "ERROR" if resp.status_code >= 500 else "INFO"
+    log(sev, f"{request.method} {request.path} -> {resp.status_code}",
+        path=request.path, status=resp.status_code, latency_ms=ms)
+    return resp</code></pre>
+  <p>
+    When the fault is toggled on (via <code>/fault/on</code>), a flag file <code>/tmp/sample-app-fault</code> is created so all Gunicorn worker processes observe the failure state simultaneously. The checkout route then injects artificial delay and fails with database exhaustion:
+  </p>
+  <pre><code>@app.route("/api/checkout")
+def checkout():
+    if os.path.exists(FAULT_FLAG):
+        time.sleep(random.uniform(2.5, 5))              # Simulated DB latency
+        if random.random() < 0.6:
+            log("ERROR", "db connection pool exhausted: timeout acquiring connection (pool_size=10, in_use=10)",
+                component="db", path="/api/checkout")
+            return jsonify(error="upstream timeout"), 503
+    else:
+        time.sleep(random.uniform(0.05, 0.2))
+    return jsonify(status="paid")</code></pre>
+
+  <h3>4.2 Telemetry Collector &amp; Diagnostic Engine (<code>function/main.py</code>)</h3>
+  <p>
+    The serverless backend handles four distinct stages upon receiving an incident question:
+  </p>
+  <ul>
+    <li>
+      <strong>Telemetry Aggregation (Cloud Logging):</strong> Gathers up to 1,000 log entries matching <code>logName="projects/{PROJECT}/logs/sample_app"</code> over the chosen time window. It compiles latency histograms (p50, p95, max) by route, groups HTTP response codes, and extracts recurring ERROR/WARNING messages.
+    </li>
+    <li>
+      <strong>Host Metric Aggregation (Cloud Monitoring):</strong> Gathers mean and peak values for <code>compute.googleapis.com/instance/cpu/utilization</code> and <code>agent.googleapis.com/memory/percent_used</code> with a 60-second alignment period.
+    </li>
+    <li>
+      <strong>Contextual Knowledge Search:</strong> Scans Markdown files in the GCS knowledge bucket, performing set intersection between words in the query/evidence and the runbooks to pick the top-4 relevant documents.
+    </li>
+    <li>
+      <strong>Gemini Reasoning Prompt:</strong> The prompt synthesizes the live evidence and runbooks with strict system instructions:
+    </li>
+  </ul>
+  <pre><code>SYSTEM = ("You are an SRE assistant. Use ONLY the evidence provided (logs, metrics, latency, runbooks, "
+          "architecture, past incidents). Give: 1) Most likely root cause, 2) Evidence that supports it, "
+          "3) Numbered diagnostic steps, 4) Suggested fix / mitigation, 5) Confidence and what is unknown. "
+          "If the evidence does not show a problem, say so. Never invent data.")</code></pre>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 5: STEP-BY-STEP INCIDENT WALKTHROUGH -->
+  <h2>5. Step-by-Step Incident Simulation &amp; Triage Lifecycle</h2>
+  <p>
+    The project provides a fully repeatable feedback loop to test and evaluate the AI agent:
+  </p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Phase 1: Healthy Baseline Traffic</div>
+      <p style="font-size: 8.5pt;">Send normal requests to populate healthy metrics:</p>
+      <pre><code>APP=$(terraform output -raw app_url)
+for i in $(seq 1 30); do
+  curl -s $APP/api/orders >/dev/null
+  curl -s $APP/api/checkout >/dev/null
+done</code></pre>
+      <p style="font-size: 8pt; color: var(--gray-600);">Latency remains &lt; 200ms; status 200; error count is zero.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Phase 2: Problem Injection</div>
+      <p style="font-size: 8.5pt;">Activate the database connection fault:</p>
+      <pre><code>curl $APP/fault/on
+for i in $(seq 1 15); do
+  curl -s $APP/api/checkout >/dev/null &
+done
+wait</code></pre>
+      <p style="font-size: 8pt; color: var(--gray-600);">Checkout latency reaches 4–5s; HTTP 503 errors and connection pool errors appear in logs.</p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Phase 3: AI Diagnosis</div>
+      <p style="font-size: 8.5pt;">In the Web UI, ask:</p>
+      <p style="font-size: 8.5pt; font-style: italic; color: var(--primary);">"Why is checkout slow and returning errors?"</p>
+      <p style="font-size: 8pt; color: var(--gray-600);">The assistant detects error logs, correlates them with runbook <code>db-connection-pool.md</code> and historical <code>INC-101.md</code>, and outputs root cause and recovery steps.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Phase 4: Recovery</div>
+      <p style="font-size: 8.5pt;">Disable the fault flag to restore normal state:</p>
+      <pre><code>curl $APP/fault/off</code></pre>
+      <p style="font-size: 8pt; color: var(--gray-600);">Service returns to normal sub-300ms latencies and zero 5xx error responses.</p>
+    </div>
+  </div>
+
+  <h3>5.1 Sample AI Output Breakdown</h3>
+  <div class="card" style="background: var(--gray-50); border-left: 4px solid var(--accent);">
+    <p style="font-size: 8.5pt; margin-bottom: 4px;"><strong>1. Most Likely Root Cause:</strong> Database connection pool exhaustion on the <code>/api/checkout</code> pathway.</p>
+    <p style="font-size: 8.5pt; margin-bottom: 4px;"><strong>2. Supporting Evidence:</strong></p>
+    <ul style="font-size: 8pt; margin-bottom: 6px;">
+      <li>Log entries: <code>"db connection pool exhausted: timeout acquiring connection (pool_size=10, in_use=10)"</code> (count: 9).</li>
+      <li>Latency: <code>/api/checkout</code> p95 latency is 4,820ms (baseline &lt; 300ms), while <code>/api/orders</code> remains normal at 110ms.</li>
+      <li>Resource Metrics: CPU utilization is low (~4.2%), ruling out VM hardware starvation or runaway CPU processes.</li>
+    </ul>
+    <p style="font-size: 8.5pt; margin-bottom: 4px;"><strong>3. Diagnostic Steps:</strong></p>
+    <ol style="font-size: 8pt; margin-bottom: 6px;">
+      <li>Confirm DB connection pool exhaustion in Cloud Logging.</li>
+      <li>Inspect active database connections, query locks, or hung transactions in the database tier.</li>
+      <li>Review runbook <code>knowledge/runbooks/db-connection-pool.md</code>.</li>
+    </ol>
+    <p style="font-size: 8.5pt; margin-bottom: 4px;"><strong>4. Mitigation &amp; Fix:</strong></p>
+    <ul style="font-size: 8pt; margin-bottom: 6px;">
+      <li>Temporary: Restart application service on VM (<code>sudo systemctl restart sample-app</code>) to drain hung connections.</li>
+      <li>Permanent: Increase database connection pool size from 10 to 30, and inspect slow query performance as documented in past post-mortem <code>INC-101.md</code>.</li>
+    </ul>
+    <p style="font-size: 8.5pt; margin-bottom: 0;"><strong>5. Confidence:</strong> High (95%). All symptoms match documented incident <code>INC-101</code> and runbook specifications.</p>
+  </div>
+
+  <!-- SECTION 6: PRODUCTION HARDENING & ROADMAP -->
+  <h2>6. Production Readiness &amp; Architecture Roadmap</h2>
+  <p>
+    While the project is fully functional as an architectural demonstration, real-world enterprise deployments should address the following areas:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Area</th>
+        <th style="width: 35%;">Demo Implementation</th>
+        <th>Production Recommendation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Authentication &amp; Security</strong></td>
+        <td>Cloud Run Function has <code>allow_unauthenticated = true</code>; web bucket is public.</td>
+        <td>Deploy Google Cloud API Gateway with Identity Platform (OIDC/JWT tokens), front the UI with Cloud CDN + Cloud Armor (IAP - Identity-Aware Proxy), and make GCS buckets private.</td>
+      </tr>
+      <tr>
+        <td><strong>Knowledge Retrieval (RAG)</strong></td>
+        <td>Basic in-memory Python keyword set intersection across text files.</td>
+        <td>Adopt <strong>Vertex AI RAG Engine</strong> or <strong>Vertex AI Search</strong> using vector embeddings to enable semantic retrieval across thousands of pages of Confluence/GitHub documentation.</td>
+      </tr>
+      <tr>
+        <td><strong>Telemetry Depth</strong></td>
+        <td>Cloud Logging text queries &amp; basic VM CPU/memory metrics.</td>
+        <td>Integrate <strong>Cloud Trace</strong> (distributed tracing with OpenTelemetry) to pinpoint exact database call spans, lock wait times, and third-party API dependencies.</td>
+      </tr>
+      <tr>
+        <td><strong>Automated Remediation (Human-in-the-Loop)</strong></td>
+        <td>Read-only recommendations in text form.</td>
+        <td>Provide executable action buttons in the UI (e.g., "Restart Service", "Scale Instance Group", "Rollback Release") backed by Cloud Run executing signed IAM-restricted Cloud Tasks.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 7: DEPLOYMENT QUICK REFERENCE -->
+  <h2>7. Deployment &amp; Operational Quick Reference</h2>
+  <pre><code># 1. Authenticate to Google Cloud
+gcloud auth application-default login
+
+# 2. Initialize and deploy infrastructure via Terraform
+cd terraform
+terraform init
+terraform apply -var="project_id=YOUR_PROJECT_ID" -var="allowed_cidr=YOUR_IP/32"
+
+# 3. Retrieve deployment endpoints
+terraform output web_url       # URL for browser dashboard
+terraform output function_url  # Cloud Run Function REST endpoint
+terraform output app_url       # Direct IP and port for the sample application VM
+
+# 4. Teardown all resources when done
+terraform destroy -var="project_id=YOUR_PROJECT_ID" -var="allowed_cidr=YOUR_IP/32"</code></pre>
+
+  <div class="footer">
+    AI Ops Assistant on GCP • Project &amp; Architecture Analysis • Generated for Reference &amp; Operational Planning
+  </div>
+
+</body>
+</html>
